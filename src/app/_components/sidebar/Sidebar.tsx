@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ISidebarProps } from "@/types";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { ArrowLeft, Settings, Text } from "lucide-react";
+import { ArrowLeft, Settings, Menu } from "lucide-react";
 import SidebarList from "./SidebarList";
 import SidebarListDragDrop from "./SidebarListDragDrop";
 
@@ -39,13 +39,13 @@ const Sidebar = ({ navItems }: ISidebarProps) => {
           <Settings onClick={handleOpenEditMode} />
         </div>
         <div
-          className='md:hidden p-3 bg-gray-500 w-full flex justify-end items-center'
+          className='md:hidden w-full flex justify-end items-center'
           onClick={handleSmallScreenSidebar}>
-          <span className='text-md font-semibold w-3/5'>
+          {/* <span className='text-md font-semibold w-3/5'>
             Companies
-          </span>
-          <div className='-rotate-180'>
-            <Text />
+          </span> */}
+          <div className="bg-gray-200 p-3 cursor-pointer">
+          <Menu />
           </div>
         </div>
         <div
@@ -56,6 +56,7 @@ const Sidebar = ({ navItems }: ISidebarProps) => {
               "translate-x-full md:translate-x-0 h-full": smallScreenSidebar === false,
             }
           )}>
+            {/* mobile */}
           <div className='md:hidden flex justify-between'>
             <ArrowLeft
               size={31}
@@ -64,6 +65,7 @@ const Sidebar = ({ navItems }: ISidebarProps) => {
             />
             <Settings onClick={handleOpenEditMode} size={31} />
           </div>
+
           {openEditMode ? (
             <SortableContext items={navItems} strategy={verticalListSortingStrategy}>
               <SidebarListDragDrop

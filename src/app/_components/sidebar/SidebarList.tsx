@@ -10,12 +10,12 @@ type SidebarListProps = {
   navItems: ISidebarItem[];
   openSidebar: boolean[];
 }
-
+// missing  linting & comments 
 const SidebarList = ({ handleOpenSidebarSubList, navItems, openSidebar }: SidebarListProps) => {
   return (
     <>
       {navItems.map((item: ISidebarItem, index: number) => (
-        item?.visible !== false ? <Fragment key={item.id}>
+        item?.visible !== false && <Fragment key={item.id}>
           <SidebarItem
             item={item}
             openSidebar={openSidebar}
@@ -33,14 +33,15 @@ const SidebarList = ({ handleOpenSidebarSubList, navItems, openSidebar }: Sideba
                   (subL?.visible || subL?.visible === undefined) && <Link
                     key={subL.id}
                     href={subL.target || '#'}
-                    className='p-3 bg-gray-100 font-semibold self-end w-4/5'
+                    className='p-3 font-semibold self-end w-full ps-10'
                     passHref>
                     {subL.title}
                   </Link>
                 )
               )}
           </div>
-        </Fragment> : null
+        </Fragment> 
+        // : null
       ))}
     </>
   )

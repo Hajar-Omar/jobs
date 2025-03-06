@@ -2,7 +2,15 @@
 
 import { getNavItems, postSidebarItems } from "@/lib/actions";
 import { ISidebarItem } from "@/types";
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState, useTransition } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
 
 interface initValue {
   editingItemId: number | null;
@@ -12,13 +20,14 @@ interface initValue {
   newTitle: string;
   setNewTitle: React.Dispatch<React.SetStateAction<string>>;
   isPending: boolean;
+  handleUndoLastChange: () => void; // Added undo last change handler
 }
 
 const SidebarContext = createContext<initValue | undefined>(undefined);
 
 const SidebarItemProvider = ({ children }: { children: ReactNode }) => {
   const [navItems, setNavItems] = useState<ISidebarItem[]>([]);
-
+  const [history, setHistory] = useState<ISidebarItem[][]>([]); // Store previous states
   const [isPending, startTransition] = useTransition();
 
   // Fetch navigation items when the component mounts
@@ -26,6 +35,7 @@ const SidebarItemProvider = ({ children }: { children: ReactNode }) => {
     try {
       const items = await getNavItems();
       setNavItems(items);
+      setHistory([items]); // Initialize history with the fetched items
     } catch (error) {
       console.error('Failed to fetch nav items:', error);
     }
@@ -91,6 +101,7 @@ const SidebarItemProvider = ({ children }: { children: ReactNode }) => {
     if (editingItemId) {
       const updatedItems = updateItemById(navItems, editingItemId, newTitle);
       setNavItems(updatedItems);
+      setHistory((prevHistory) => [...prevHistory, updatedItems]); // Add to history
       setEditingItemId(null);
       setNewTitle("");
 
@@ -119,12 +130,24 @@ const SidebarItemProvider = ({ children }: { children: ReactNode }) => {
   const handleVisibility = async (id: number) => {
     const updatedItems = updateVisibilityById(navItems, id);
     setNavItems(updatedItems);
+    setHistory((prevHistory) => [...prevHistory, updatedItems]); // Add to history
 
     try {
       await postSidebarItems(updatedItems);
       console.log("Visibility successfully updated");
     } catch (error) {
       console.error("Failed to update visibility", error);
+    }
+  };
+
+  /**
+   * Undoes the last change made to the sidebar items.
+   */
+  const handleUndoLastChange = () => {
+    if (history.length > 1) {
+      const previousState = history[history.length - 2];
+      setNavItems(previousState);
+      setHistory((prevHistory) => prevHistory.slice(0, prevHistory.length - 1)); // Remove last state
     }
   };
 
@@ -136,9 +159,12 @@ const SidebarItemProvider = ({ children }: { children: ReactNode }) => {
     newTitle,
     setNewTitle,
     isPending,
+    handleUndoLastChange, // Include undo last change handler in context
   };
 
-  return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>;
+  return (
+    <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
+  );
 };
 
 // Custom hook for consuming the context

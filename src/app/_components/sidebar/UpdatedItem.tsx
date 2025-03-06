@@ -7,6 +7,7 @@ type Props = {
   setNewTitle: React.Dispatch<React.SetStateAction<string>>;
 };
 
+// always update, no x or check (cog as toggle only) .. if sub list not opened , can't open & edit (ethier allow or not )
 const UpdatedItem = ({
   handleSaveEdit,
   newTitle,

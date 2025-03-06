@@ -3,6 +3,7 @@
 import { ISidebarItem } from "@/types";
 import { revalidatePath } from "next/cache";
 
+// missing return types
 export async function getNavItems() {
   try {
     // const response = await fetch("https://ahmed-radi-daftra.koyeb.app/nav");
@@ -26,20 +27,46 @@ export async function getNavItems() {
   }
 }
 
-export async function postTrackItem({ id, from, to }: { id: number, from: number, to: number }) {
-  // const response = await fetch("https://ahmed-radi-daftra.koyeb.app/track", {
-  const response = await fetch("http://localhost:8081/track", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ id, from, to }),
-  });
+/**
+ * Sends a POST request to track an item's movement.
+ *
+ * @param {Object} params - The parameters for the tracking request.
+ * @param {number} params.id - The ID of the item.
+ * @param {number} params.from - The starting position.
+ * @param {number} params.to - The destination position.
+ * @returns {Promise<{ message?: string } | any>} - A promise resolving with server response.
+ */
+export async function postTrackItem({
+  id,
+  from,
+  to,
+}: {
+  id: number;
+  from: number;
+  to: number;
+}): Promise<{ message?: string } | any> {
+  try {
+    const apiUrl = process.env.API_URL || "http://localhost:8081";
+    const response = await fetch(`${apiUrl}/track`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id, from, to }),
+    });
 
-  if (response.status === 204) {
-    return { message: 'No Content' };
-  } else {
+    if (response.status === 204) {
+      return { message: "Item movement tracked successfully (no content)." };
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to track item: HTTP ${response.status}`);
+    }
+
     return await response.json();
+  } catch (error) {
+    console.error("Error tracking item:", error);
+    return { error: "Failed to track item." }; // Return error object for client handling.
   }
 }
 

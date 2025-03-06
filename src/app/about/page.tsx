@@ -1,9 +1,5 @@
-import ContentPage from '@/components/ContentPage'
-
 const AboutPage = () => {
-  return (
-    <ContentPage>About</ContentPage>
-  )
-}
+  return <>About</>;
+};
 
-export default AboutPage
+export default AboutPage;
